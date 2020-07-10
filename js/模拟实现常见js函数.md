@@ -42,50 +42,27 @@ function flatternObj(obj) {
 ```
 
 ### 拷贝：深拷贝浅拷贝
-- 浅拷贝：js中的浅拷贝指的是对象单层级拷贝，操作拷贝出来的新对象不会影响被拷贝的对象，可以使用es6解构赋值进行浅拷贝
-
-```js
-var man = {
-  name: 'abc',
-  age: 18
-}
-var shallowCopy = { ...man }
-
-```
+- 总结写前面：
+  - 赋值运算符 = 实现的是浅拷贝，只拷贝对象的引用值
+  - javascript 中数组和对象自带的拷贝方法都是‘首层浅拷贝’，如concat,slice
+  - JSON.stringify 实现的是深拷贝，但不适用于循环引用和函数
+  - 递归实现所有条件下的深拷贝；但是递归性能会不如浅拷贝，酌情使用
+- 浅拷贝：浅拷贝只是复制对象的引用，如果拷贝后的对象发生变化，原对象也会发生变化
 - 深拷贝
   - 不考虑循环引用和函数时使用JSON.parse(JSON.stringify(obj))，适用于大部分应用场景
   - 考虑循环引用和函数时使用递归，判断 某属性 是否指向 父节点 
-  ```js
-  function deepCopy(obj, parent = null) {
-    let result = {},
-      keys = Object.keys(obj),
-      key = null, value = null;
-    let _parent = parent
-    
-    while(_parent) {
-      if(_parent.currentParent == obj) {
-        return obj
-      }
-      _parent = _parent.parent
-    }
-
-    for(let i = 0; i < keys.length; i++) {
-      key = keys[i], value = obj[key];
-
-      if(value && typeof temp === 'object') {
-        result[key] = deepCopy(value, {
-          originParent: obj,
-          currentParent: result,
-          parent: parent
-        })
-      } else {
-        result[key] = value
-      }
-    }
-
-    return result
-  }
-  ```
+ ```js
+ function deepCopy(obj) {
+   if(typeof obj !== 'object') return;
+   var newobj = obj instanceof Array ? [] : {};
+   for(var key in obj) {
+     if(obj.hasOwnProperty(key)) {
+       newObj[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key];
+     }
+   }
+   return newObj;
+ }
+ ```
 
 ### 模拟实现call和apply函数
 - call()方法接受的是一个参数列表，apply()方法接受一个包含一个多个参数的数组
@@ -132,7 +109,7 @@ if(!Function.prototype.bind) {
     }
 
     var args = Array.prototype.slice.call(arguments, 1),
-      var thatFunc = this;
+        thatFunc = this;
     
     var fNOP = function() {}
 
@@ -151,23 +128,96 @@ if(!Function.prototype.bind) {
 
 ```
 
-### 实现函数式编程：compose函数和pipe函数；compose函数数据执行流是从右到左实现的；从左到右是pipe函数
-```js
-function compose(...args) {
-  return function(x) {
-    return args.reduceRight((res, cb) => {
-      return cb(res)
-    }, x)
-  }
-}
-// 或者
-const compose = (...args) => x => args.resuceRight((res, cb) => cb(res), x)
 
-const pipe = (...args) => x => args.reduce((res, cb) => cb(res), x)
+### new的模拟实现
+```js
+// 需要判断构造函数返回值是不是一个对象，若是一个对象，则返回该对象；若不是则该返回什么就返回什么
+
+function objectFactory() {
+  var obj = new Object()
+  Constructor = [].shift.call(arguments)
+
+  obj._proto_ = Constructor.prototype
+
+  var ret = Constructor.apply(obj, arguments)
+
+  return type ret == 'object' ? ret : obj
+}
+
+function Otaku(name, age) {
+  this.name = name
+  this.age = age
+
+}
+var person = objectFactory(Otaku, 'kevin', '18')
+
 ```
 
 ### 防抖节流
+- 防抖
+```js
+// 需求：立即执行、返回值、取消定时器
+function debounce(fn, delay, immediate) {
+  var timer = null, result;
 
+  var debounced = function() {
+    var ctx = this, args = arguments;
 
-### new的模拟实现
+    if(timer) clearTimeout(timer);
+
+    if(immediate) {
+      var callNow = !timer
+
+      timer = setTimeout(() => {
+        fn.call(ctx, args)
+      }, delay)
+
+      if(callNow) result = fn.call(ctx, args)
+    } else {
+      timer = null;
+      timer = setTimeout(() => {
+        fn.call(ctx, args)
+      }, delay)
+    }
+
+    return result
+  }
+  
+  debounced.cancel = function() {
+    clearTimeout(timer);
+    timer = null;
+  }
+
+  return debounced
+}
+
+```
+- 节流
+```js
+function throttle(fn, delay) {
+  let timer = null;
+
+  var throttled = function() {
+    let ctx = this, args = arguments;
+
+    if(timer) return false
+
+    timer = setTimeout(() => {
+      clearTimeout(timer);
+      timer = null;
+      fn.call(ctx, args)
+    }, delay)
+
+  }
+
+  throttled.cancel = function() {
+    clearTimeout(timer);
+    timer = null
+  }
+
+  return throttled
+}
+
+```
+
 
