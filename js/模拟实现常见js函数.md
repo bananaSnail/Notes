@@ -1,5 +1,5 @@
 ### 扁平化：数组扁平化、对象扁平化
-- 数组扁平化
+- 数组扁平化flat
 ```js
 function flattern(arr) {
   var result = []
