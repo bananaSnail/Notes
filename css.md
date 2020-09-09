@@ -5,7 +5,34 @@
 - line-height 实现多行文字垂直居中 * {line-height: 150%}
 - 在某些情形下，line-height 和 height 可以互换，使用行高代替高度避免haslayout
 
-### position: sticky
+### BFC
+- 块格式化上下文，是`用于布局块级盒子的一块渲染区域`，是块盒子布局过程中发生的区域，也就是浮动元素和其他元素交互的区域
+- 触发条件：
+  - 根元素html
+  - overflow不为visible
+  - float不为none
+  - position为absolute或fixed
+  - display 的值为 inline-block、table-cell、table-caption
+- 布局规则
+  1. 内部的Box会在垂直方向，一个接一个地放置。
+  2. Box垂直方向的距离由margin决定。属于同一个BFC的两个相邻Box的margin会发生重叠
+  3. 每个元素的margin box的左边， 与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此。
+  4. BFC的区域不会与float box重叠。
+  5. BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此。
+  6. 计算BFC的高度时，浮动元素也参与计算
+- 作用：BFC是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面元素
+  - 分属于不同的BFC时可以阻止margin重叠(2)
+  - 可以包含浮动元素——清除内部浮动(3)
+  - 自适应两栏布局(4)
+  - 可以阻止元素被浮动元素覆盖(4)
+- 清除浮动：（触发相关元素的BFC）
+  - 父元素使用overflow: auto; 会影响滚动条
+  - 父元素使用display:flow-root; 可以创建无副作用的BFC，实际上是在创建一个行为类似于根元素的东西时，就能发现这个名字的意义了——即创建一个上下文，里面将进行 flow layout。
+
+
+
+### position
+#### position: sticky
 - 粘性定位可以被认为相对定位和固定定位的混合，元素在跨越特定阈值前为相对定位，之后为固定定位；
 - 可以实现页面滚动一段距离后固定导航栏 #one {position: sticky; top: 10px}
 
@@ -63,6 +90,52 @@
 
 
 ### 水平垂直居中
+
+### 布局的几种方式
+- 静态布局
+  - 页上的所有元素的尺寸一律使用px作为单位
+- 流式布局
+  - 流式布局的特点 是页面元素的宽度按照屏幕分辨率进行适配调整，但整体布局不变。代表作栅栏系统 网格系统
+  - 屏幕分辨率变化时，页面里元素的大小会变化而但布局不变
+- 响应式布局
+  - 每个屏幕分辨率下面会有一个布局样式，即元素位置和大小都会变
+  - 媒体查询+流式布局
+- 自适应布局
+  - 自适应布局的特点是分别为不同的屏幕分辨率定义布局，即创建多个静态布局，每个静态布局对应一个屏幕分辨率范围。
+  - 使用 @media 媒体查询给不同尺寸和介质的设备切换不同的样式。
+  - 屏幕分辨率变化时，页面里面元素的位置会变化而大小不会变化。
+- 弹性布局（rem/em布局）
+  - CSS编写者常常将页面跟节点字体设为62.5%，比如选择用rem控制字体时
+  - 先需要设置根节点html的字体大小，因为浏览器默认字体大小16px*62.5%=10px。这样1rem便是10px，方便了计算。
+
+### H5 移动端 （待补充）
+#### CSS单位px,rem,em,vw,vh的区别
+- px：像素缩写，相对长度单位，相对于显示屏分辨率而言
+- em：相对长度单位，相对于当前对象内文本字体尺寸，参考父元素的font-size；若父元素没有设置字体大小则相对于浏览器的默认字体尺寸
+- rem: CSS3新增的属性，相对于根元素的字体大小来计算长度的单位；若没有设置根元素的字体大小则使用浏览器默认的字体大小16px
+- vw：相对于视口的宽度而定的，长度等于视口宽度的1/100，若视口宽度是200px,则1vw为2px
+- vh: 相对于视口高度而定的，高度等于视口高度的1/100；假如浏览器的高度为500px，那么1vh就等于5px
+- rem和em的区别：rem是相对于根元素的字体大小来计算；em是相对于父元素的字体大小来计算
+
+```js
+// deviceWidth = 320，font-size = 320 / 6.4 = 50px
+// deviceWidth = 375，font-size = 375 / 6.4 = 58.59375px
+// deviceWidth = 414，font-size = 414 / 6.4 = 64.6875px
+// deviceWidth = 500，font-size = 500 / 6.4 = 78.125px
+document.documentElement.style.fontSize = document.documentElement.clientWidth / 6.4 + 'px';
+
+// css 
+// width: 6.4rem
+
+// 如果设计稿基于iphone6，横向分辨率为750，body的width为750 / 100 = 7.5rem
+// 如果设计稿基于iphone4/5，横向分辨率为640，body的width为640 / 100 = 6.4rem
+```
+- viewport
+```js
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+```
+- device-width = 设备物理分辨率 / (devicePixelRatio * scale) ; devicePixelRatio 称为设备像素比，每款设备该值是不变的，已知的
+
 
 ### css布局实现
 - 文档流布局display：按照文档的顺序一个个显示出来，块元素独占一行，行内元素共享一行
@@ -163,24 +236,3 @@
 
 }
 ```
-
-### H5 移动端 （待补充）
-- rem
-```js
-// deviceWidth = 320，font-size = 320 / 6.4 = 50px
-// deviceWidth = 375，font-size = 375 / 6.4 = 58.59375px
-// deviceWidth = 414，font-size = 414 / 6.4 = 64.6875px
-// deviceWidth = 500，font-size = 500 / 6.4 = 78.125px
-document.documentElement.style.fontSize = document.documentElement.clientWidth / 6.4 + 'px';
-
-// css 
-// width: 6.4rem
-
-// 如果设计稿基于iphone6，横向分辨率为750，body的width为750 / 100 = 7.5rem
-// 如果设计稿基于iphone4/5，横向分辨率为640，body的width为640 / 100 = 6.4rem
-```
-- viewport
-```js
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-```
-- device-width = 设备物理分辨率 / (devicePixelRatio * scale) ; devicePixelRatio 称为设备像素比，每款设备该值是不变的，已知的

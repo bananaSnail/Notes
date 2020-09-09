@@ -11,6 +11,17 @@
 - 类class
 - generate
 
+### es2020新特性
+- 可选链操作符(?. ) (user?.name) 不为null 或者 undefined 才能继续下去 
+- 空位合并操作符(??) (x ?? 500)
+- Promise.allSettled 解决Promise.all的万一崩掉的短路问题
+- String.prototype.matchAll：如果一个正则表达式在字符串里面有多个匹配，现在一般使用g修饰符或y修饰符，在循环里面逐一取出
+- Dynamic import： import(module) 函数可以在任何地方调用。它返回一个解析为模块对象的 promise。
+```js
+let module = await import('/modules/my-module.js');
+```
+- globalThis:  目的就是提供一种标准化方式访问全局对象
+
 ### const let
 - var 在创建时就被初始化了，赋值为undefined
 
