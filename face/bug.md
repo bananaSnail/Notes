@@ -11,3 +11,7 @@ value.replace(/\n/g, '<br>').replace(/\s+/g, '&nbsp;')
 - 雷达图：
   - 自己画，对称问题，通过旋转调整对称，不同边形的雷达图标题的位置不同，找共同点，抽象
   - 用ant g2插件 自定义的tooltip  他不跟随鼠标移动  inPlot: true, // 将 tooltip 展示在指定区域内  置为false就行了
+
+
+- html2canvas截图跨域问题【转载】  添加useCORS:true属性
+- 画圆画不圆   放大再用transform缩小

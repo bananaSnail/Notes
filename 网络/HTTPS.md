@@ -5,10 +5,10 @@
 
 
 ### https -> http
-- HTTPS比HTTP更加安全，对搜索引擎更友好，利于SEO,谷歌、百度优先索引HTTPS网页;
-- HTTPS需要用到SSL证书，而HTTP不用;
-- HTTPS标准端口443，HTTP标准端口80;
-- HTTPS基于传输层，HTTP基于应用层;
+- `HTTPS比HTTP更加安全，对搜索引擎更友好，利于SEO,谷歌、百度优先索引HTTPS网页;`
+- `HTTPS需要用到SSL证书，而HTTP不用;`
+- `HTTPS标准端口443，HTTP标准端口80;`
+- `HTTPS基于传输层，HTTP基于应用层;`
 - HTTPS在浏览器显示绿色安全锁，HTTP没有显示;
 
 ### 密码学SSL协议

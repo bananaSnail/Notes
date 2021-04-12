@@ -1,14 +1,14 @@
 ### es6特性
-- const、let
+- `const、let`
 - 模板字符串： ${name} ` `
-- 箭头函数
-- iterator 迭代器：一个具有next() 方法的对象，每次调用next()都会返回一个结果对象，该对象有两个属性，value表示当前值，done表示遍历是否结束
-- 解构： let { data } = res
-- 展开运算符： ... let arr = [...res]
+- `箭头函数`
+- `iterator 迭代器：一个具有next() 方法的对象，每次调用next()都会返回一个结果对象，该对象有两个属性，value表示当前值，done表示遍历是否结束`
+- `解构： let { data } = res`
+- `展开运算符： ... let arr = [...res]`
 - for...of循环
-- Promise: 使得异步回调代码扁平化
+- `Promise: 使得异步回调代码扁平化`
 - ES6 Module
-- 类class
+- `类class`
 - generate
 
 ### es2020新特性
@@ -26,8 +26,8 @@ let module = await import('/modules/my-module.js');
 - var 在创建时就被初始化了，赋值为undefined
 
 ### for...of循环
-- for...of只能用在可迭代对象上，获取的是迭代器返回的value值，for...in可以获取所有对象的键名
-- for...in 会遍历对象的整个原型链，性能非常差不推荐使用，而for...of只遍历当前对象不会遍历他的原型链
+- `for...of只能用在可迭代对象上，获取的是迭代器返回的value值`，`for...in可以获取所有对象的键名`
+- `for...in 会遍历对象的整个原型链，性能非常差不推荐使用，而for...of只遍历当前对象不会遍历他的原型链`
 
 ### Module
 ```js
@@ -41,13 +41,14 @@ export {y as default} // 输出变量的引用
 - export {<变量>}这种形式导出的模块，即使被重命名为default，仍然导出的是一个*变量的引用*
 
 ### 箭头函数
-- 释义：箭头函数表达式的语法比函数表达式更短，并且不绑定自己的this，arguments，super或 new.target。这些函数表达式最适合用于非方法函数(non-method functions)，并且它们不能用作构造函数。
-- 没有this，需要通过查找作用域链来确定this的值
-- 没有arguments，可以通过命名参数或者rest参数的形式来访问参数
-- 不能通过 new 关键字调用
-- 没有 new.target
-- 没有原型
-- 没有super
+- `ES6中的箭头函数并不会创建自身的执行上下文；箭头函数里面的this取决于它的外部函数，通过查找作用域链来确定`
+- 释义：`箭头函数表达式的语法比函数表达式更短，并且不绑定自己的this，arguments，super或 new.target。这些函数表达式最适合用于非方法函数(non-method functions)，并且它们不能用作构造函数。`
+- `没有this，需要通过查找作用域链来确定this的值`
+- `没有arguments，可以通过命名参数或者rest参数的形式来访问参数`
+- `不能通过 new 关键字调用`
+- `没有 new.target`
+- `没有原型`
+- `没有super`
 
 ### 模拟实现 Set 数据结构
 - 简单版：实现add、delete、has、clear、forEach方法
@@ -169,7 +170,21 @@ export {y as default} // 输出变量的引用
   - 回调嵌套
   - 控制反转 
   - 回调地狱 -- 难以复用、堆栈信息被断开、借助外层变量
-- Promise 控制反转再反转
+- Promise 解决了：
+  - 回调地狱问题
+  - 信任问题：控制反转再反转
+- Promise 回调未调用问题：Promise 在决议时总是会调用完成回调和拒绝回调中的一个，若Promise本身永远不被决议，即使这样，Promise也提供了解决方案，使用Promise.race函数
+```js
+const p = Promise.race([
+  api.getData(),
+  new Promise(function(resolve, reject) {
+    setTimeout(() => reject(new Error('timeout')), 5000)
+  })
+])
+p.then(val => {})
+.catch(err => {}) // 超时
+```
+
 - 红绿灯问题：红灯三秒亮一次，绿灯一秒亮一次，黄灯2秒亮一次；如何让三个灯不断交替重复亮灯？
 ```js
 function red() {

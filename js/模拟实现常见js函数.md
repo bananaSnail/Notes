@@ -45,7 +45,7 @@ function flatternObj(obj) {
 }
 ```
 
-### 拷贝：深拷贝浅拷贝
+### 拷贝：深拷贝浅拷贝！！
 - 总结写前面：
   - 赋值运算符 = 实现的是浅拷贝，只拷贝对象的引用值
   - javascript 中数组和对象自带的拷贝方法都是‘首层浅拷贝’，如concat,slice
@@ -208,11 +208,6 @@ console.log(obj.habit);
 console.log(obj.friend);
 // shopping
 // kevin
-
-
-
-
-
 ```
 
 

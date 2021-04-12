@@ -9,6 +9,7 @@
 - 泛型指定义函数、接口或类的时候，不预先指定具体的类型，而在使用的时候再指定类型的一种特性
 - 使用场景：使用泛型的关键目的是在`成员之间提供有意义的约束`，如类的实例成员、类的方法、函数参数、函数返回值
 - 滥用泛型：泛型仅用于单个参数的位置时是完全没必要用泛型的，此时相当于一个类型断言as
+- 坑： 除了泛型接口，我们还可以创建泛型类。 注意，`无法创建泛型枚举和泛型命名空间。`
 
 ### 介绍下interface
 - 在面向对象语言中，接口是对行为的抽象，而具体如何行动需要由类去实现，typescript中的接口可以对`类的一部分行为进行抽象，也可用于对对象的形状进行描述`
@@ -169,6 +170,36 @@ swap([7, 'seven']); // ['seven', 7]
  - 泛型参数的默认类型
    - 当使用泛型时没有在代码中直接指定类型参数，从实际值参数中也无法推测出时，这个默认类型就会起作用。
 
+### 用过最复杂的ts API，用过哪些ts API
+- 泛型  类型断言  
+- 题目：第一个参数是不定类型，如 type 或 enum这种  第二个参数在第一个参数确定下来后跟第一个参数类型保持一致
+- 解析：
+  1. `函数参数间的约束考虑用泛型`，`注意：是无法创建泛型枚举和泛型空间的`，因此考虑type类型。
+  2. `infer类型推断：`由于第二个参数依赖于第一个参数的类型
+```js
+// 方法一
+function name<T extends Test, U extends T>(a: T, b: U) {
+  console.log(a, b);
+}
+enum Test {
+  A = 1,
+  B = 'string'
+}
+
+name(Test.A, 'xxxx') // 报错，类型不兼容
+name(Test.A, 1) // 可
+
+// 方法二
+type Type = Number | String // 注意要大写，小写的number | string 是ts 里面定义值类型的，Number和String 是其中的包装对象；定义值的话就必须得一样了
+type ParamType<T> = T extends (param: infer P) ? P : T 
+
+testFunc<T extends Type>(a: T, b: ParamType<T>) {
+  console.log(a, b)
+}
+
+testFunc('aaa', 111) // 报错，Argument of type 'number' is not assignable to parameter of type 'string'.
+testFunc('aaa', 'bbbb')
+```
 
 ### 声明合并
 如果定义了两个相同名字的函数、接口或类，那么它们会合并成一个类型。

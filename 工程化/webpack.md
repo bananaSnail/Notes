@@ -1,5 +1,5 @@
 
-- 概念：分析项目的结构，找到js模块以及其他的一些浏览器不能直接运行的拓展语言(scss,ts)，并将其打包成合适的格式以供浏览器使用
+- 概念：`分析项目的结构，找到js模块以及其他的一些浏览器不能直接运行的拓展语言(scss,ts)，并将其打包成合适的格式以供浏览器使用`
 - 优点：在webpack看来一切都是模块。包括你的JavaScript代码，也包括CSS和fonts以及图片等等，只有通过合适的loaders，它们都可以被当做模块被处理。
 
 ### entry：入口文件指是webpack应用哪个模块作为依赖图的开始，默认值是./src/index.js
@@ -39,18 +39,18 @@ url-loader会接收一个limit参数，单位字节byte
 当文件体积大于limit时，url-loader会调用file-loader，把文件存储到输出目录，并把引用的文件路径写成输出后的路径
 */
 ```
-- file-loader：把文件输出到一个文件夹中，在代码中通过相对 URL 去引用输出的文件 (处理图片和字体)
-- url-loader：与 file-loader 类似，区别是用户可以设置一个阈值，大于阈值会交给 file-loader 处理，小于阈值时返回文件 base64 形式编码 (处理图片和字体)
-- babel-loader：把 ES6 转换成 ES5
-- ts-loader: 将 TypeScript 转换成 JavaScript
-- sass-loader：将SCSS/SASS代码转换成CSS
-- css-loader：加载 CSS，支持模块化、压缩、文件导入等特性
-- style-loader：把 CSS 代码注入到 JavaScript 中，通过 DOM 操作去加载 CSS
-- vue-loader：加载 Vue.js 单文件组件
+- `file-loader：把文件输出到一个文件夹中，在代码中通过相对 URL 去引用输出的文件 (处理图片和字体)`
+- `url-loader：与 file-loader 类似，区别是用户可以设置一个阈值，大于阈值会交给 file-loader 处理，小于阈值时返回文件 base64 形式编码 (处理图片和字体)`
+- `babel-loader：把 ES6 转换成 ES5`
+- `ts-loader: 将 TypeScript 转换成 JavaScript`
+-` sass-loader：将SCSS/SASS代码转换成CSS`
+- `css-loader：加载 CSS，支持模块化、压缩、文件导入等特性`
+- `style-loader：把 CSS 代码注入到 JavaScript 中，通过 DOM 操作去加载 CSS`
+- `vue-loader：加载 Vue.js 单文件组件`
 
 ### Loader和Plugin的区别
-- Loader 本质就是一个函数，在该函数中对接收到的内容进行转换，返回转换后的结果。 因为 Webpack 只认识 JavaScript，所以 Loader 就成了翻译官，对其他类型的资源进行转译的预处理工作。
-- Plugin 就是插件，基于事件流框架 Tapable，插件可以扩展 Webpack 的功能，在 Webpack 运行的生命周期中会广播出许多事件，Plugin 可以监听这些事件，在合适的时机通过 Webpack 提供的 API 改变输出结果。
+- `Loader 本质就是一个函数`，在该函数中对接收到的内容进行转换，返回转换后的结果。 因为 Webpack 只认识 JavaScript，所以 Loader 就成了翻译官，`对其他类型的资源进行转译的预处理工作`。
+- `Plugin 就是插件，基于事件流框架 Tapable，插件可以扩展 Webpack 的功能，`在 Webpack 运行的生命周期中会广播出许多事件，`Plugin 可以监听这些事件，在合适的时机通过 Webpack 提供的 API 改变输出结果`。
 
 
 
@@ -69,10 +69,11 @@ url-loader会接收一个limit参数，单位字节byte
   - `初始化：启动构建，读取与合并配置参数，加载 Plugin，实例化 Compiler`
   - `编译：从 Entry 出发，针对每个 Module 串行调用对应的 Loader 去翻译文件的内容，再找到该 Module 依赖的 Module，递归地进行编译处理`
   - `输出：将编译后的 Module 组合成 Chunk，将 Chunk 转换成文件，输出到文件系统中`
+- 补充：打包过程中被操作的模块文件叫做chunk
 
 ### Webpack 的热更新原理
 - `Webpack 的热更新又称热替换（Hot Module Replacement），缩写为 HMR。 这个机制可以做到不用刷新浏览器而将新变更的模块替换掉旧的模块。`
-- HMR的核心就是`客户端从服务端拉去更新后的文件`，准确的说是 chunk diff (chunk 需要更新的部分)，实际上 `WDS(Webpack-dev-server) 与浏览器之间维护了一个 Websocket，当本地资源发生变化时，WDS 会向浏览器推送更新，并带上构建时的 hash，让客户端与上一次资源进行对比。客户端对比出差异后会向 WDS 发起 Ajax 请求来获取更改内容(文件列表、hash)，这样客户端就可以再借助这些信息继续向 WDS 发起 jsonp 请求获取该chunk的增量更新。`
+- HMR的核心就是`客户端从服务端拉取更新后的文件`，准确的说是 chunk diff (chunk 需要更新的部分)，实际上 `WDS(Webpack-dev-server) 与浏览器之间维护了一个 Websocket，当本地资源发生变化时，WDS 会向浏览器推送更新，并带上构建时的 hash，让客户端与上一次资源进行对比。客户端对比出差异后会向 WDS 发起 Ajax 请求来获取更改内容(文件列表、hash)，这样客户端就可以再借助这些信息继续向 WDS 发起 jsonp 请求获取该chunk的增量更新。`
 - 后续的部分(拿到增量更新之后如何处理？哪些状态该保留？哪些又需要更新？)由 HotModulePlugin 来完成，提供了相关 API 以供开发者针对自身场景进行处理，像react-hot-loader 和 vue-loader 都是借助这些 API 实现 HMR。
 
 
