@@ -112,4 +112,44 @@ ReactDOM.render(<Weather/>, document.getElementById('test))
 
 
 ### refs
+- 字符串形式的ref--尽量避免
+- 回调形式的ref  
+    - 内联形式的回调形式的ref函数
+    - 非内联形式的回调形式的ref函数
+- createRef 调用后可以返回一个容器，该容器可以存储被ref所标识的节点，该容器是专有的
 
+### 受控组件 vs 非受控组件
+- 受控组件：input框通过onChange的回调接收控制变化的数据，存入state里面
+- 非受控组件：通过ref接收数据
+
+### 高阶函数
+- 一个函数如果符合下面任意一项就是高阶函数
+    - 一个函数接收的参数是一个函数，那么该函数就可以称之为高阶函数
+    - 一个函数返回值是一个函数，那么该函数可以称之为高阶函数
+
+
+### 函数科里化
+- 通过函数调用继续返回函数的方式，实现多次接收参数，最后统一处理的函数编码形式
+
+### 生命周期函数 生命周期钩子函数  旧生命周期
+- 1
+    - componentWillMount 组将即将挂载
+    - componentDidMount  组件挂载完毕调用  *常用：开启定时器，发送网络请求，订阅消息*
+    - render  初始化渲染  状态更新之后
+- 2
+    - shouldComponentUpdate 组件将要更新  控制组件是否更新的阀门  
+    - render 重新渲染
+    - componentDidUpdate  组件更新完毕
+    - componentWillUnmount 组件将要卸载时调用    *常用： 关闭定时器，取消订阅消息*
+- 3
+    - forceUpdate 强制更新， 不受‘阀门’状态影响
+    - render 重新渲染
+- 4
+    - componentWillReceiveProps 组件非首次接收参数时调用
+    - shouldComponentUpdate 组件将要更新  控制组件是否更新的阀门  
+    - render 重新渲染
+    - componentDidUpdate  组件更新完毕
+    - componentWillUnmount 组件将要卸载时调用
+
+### 生命周期函数 生命周期钩子函数  新生命周期
+- 

@@ -1,6 +1,6 @@
 vue   es  ts  js
 
-### Promise 
+### 实现Promise
 - 优点，若没有Promise程序会怎么样
 - 手写Promise，如何实现链式调用，.then的实现   若当前promise没有被resolve或者reject掉，使用.then会发生什么
 - Promise.then为什么是微任务
