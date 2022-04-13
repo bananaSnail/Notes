@@ -3,6 +3,7 @@
 - fiber涉及到批量更新和时间切片的批量更新
 - 其能够将任务分片，划分优先级，同时能够实现类似于操作系统中对线程的抢占式调度(requestIdleCallback)，非常强大。
 
+### Fiber优先级？
 ### react
 - 虚拟DOM层负责描述结构与逻辑
 - 内部组件层负责组件更新如React.Render、setState、forceUpdate；多次setState只执行一次真实的渲染，在合适的时机调用组件生命周期钩子

@@ -88,6 +88,13 @@ url-loader会接收一个limit参数，单位字节byte
 - 开启热更新：原理也是向每一个chunk中注入代理客户端来连接DevServer和网页
 - 使用Tree Shaking剔除JS死代码
 
+### webpack如何提取公共代码，原理
+- SplitChunksPlugin
+- DllPlugin：DLLPlugin 和 DLLReferencePlugin 用某种方法实现了拆分 bundles，同时还大大提升了构建的速度
+- 常用的代码分离方法有三种：
+  - 入口起点：使用 entry 配置手动地分离代码。
+  - 防止重复：使用 Entry dependencies 或者 SplitChunksPlugin 去重和分离 chunk。
+  - 动态导入：通过模块的内联函数调用来分离代码
 
 ### [Tree Shaking](https://webpack.docschina.org/guides/tree-shaking/) 
 - 概念：Tree shaking 是一种通过清除多余代码方式来优化项目打包体积的技术
@@ -136,3 +143,94 @@ url-loader会接收一个limit参数，单位字节byte
 - 转换：访问 AST 的节点进行变换操作生产新的 AST
   - Taro就是利用 babel 完成的小程序语法转换
 - 生成：以新的 AST 为基础生成代码
+
+
+### 升级webpack4到webpack5
+- 相关知识点
+   - monorepo：
+    - Menorepo的优点是可以在一个仓库里维护多个package，可统一构建，跨package调试、依赖管理、版本发布都十分方便，搭配工具还能统一生成CHANGELOG；
+    - 缺点是代码仓库体积会变大，只开发其中一个package也需要安装整个项目的依赖。
+   - yarn workspaces
+    ```js
+    {
+      "private": true,
+      "workspaces": ["workspace-a", "workspace-b"]
+    }
+    ```
+    - 开发多个互相依赖的package时，workspace会自动对package的引用设置软链接（symlink），比yarn link更加方便，且链接仅局限在当前workspace中，不会对整个系统造成影响
+      - 所有package的依赖会安装在最根目录的node_modules下，节省磁盘空间，且给了yarn更大的依赖优化空间
+      - 所有package使用同一个yarn.lock，更少造成冲突且易于审查
+  - 为什么webpack要压缩js,css,html和图片等资源？
+      - 提升访问速度，压缩后可以减少网页体积，图片更小的话速度也会更快
+  - package.json中peerDependencies作用
+      -  peerDependencies 的目的是提示宿主环境去安装满足插件peerDependencies所指定依赖的包，然后在插件import或者require所依赖的包的时候，永远都是引用宿主环境统一安装的npm包，最终解决插件与所依赖包不一致的问题
+  - yarn多版本打平依赖问题，pnpm不会打平依赖
+      - 项目的node_modules文件夹只有当前package.json中所声明的各个依赖（的软连接），而真正的模块文件，存在于node_modules/.pnpm，由模块名@版本号形式的文件夹扁平化存储(解决依赖重复安装)。同时这样设计，也很好的避免了之前可以访问非法npm包的问题，因为当前项目的node_modules只有我们声明过的依赖，这也让node_modules里面的文件看起来非常的直观
+  - optionalDependencies
+      - 可选依赖，如果有一些依赖包即使安装失败，项目仍然能够运行或者希望npm继续运行，就可以使用optionalDependencies。另外optionalDependencies会覆盖dependencies中的同名依赖包，所以不要在两个地方都写。
+      - 如果一个依赖关系可以被使用，但你希望npm在找不到它或安装失败的情况下继续进行，那么你可以把它放在optionalDependencies对象中。这是一个包名到版本或url的映射，就像依赖对象一样。不同的是，构建失败不会导致安装失败。
+  - require.resolve.paths
+  - file-type 检测文件类型，用于debug webpack相关包源码
+  - webpack build使用production模式是因为生产模式做了很多代码优化之类的东西
+  - chunk跟module的区别
+      - module就是模块，和一般的js模块一样，一个模块一般是一个功能内聚，封装良好的文件，而chunk是webpack特有的，用来打包module，输出到bundle的，bundle就是module最后打包输出的文件
+  - webpackChunkName
+
+
+- 项目细节
+  - link-to-chunk.ts 文件用import动态导入，配合/* webpackChunkName: "survey" */，生成一个单独的有意义的文件名，用来分析包的大小及优化；对比require形式，require是将所有的都打包到一个文件里
+  - rollup.js https://zhuanlan.zhihu.com/p/75717476
+- 问题
+  - webpack5耗时比webpack4多半分钟？
+    - 分析编译耗时、图片插件；
+    - 尝试输出各个阶段编译耗时，开始编译的时间，找到问题，解决问题,使用file-type去定位content文件类型
+    - 如果不行，就自己编写loader去处理压缩图片
+    - 基于image-webpack-loader，参考image-minimizer-webpack-plugin 插件loader的写法，自己写一个loader
+  - name 用md5的原因，不用md4
+    - 小程序taro中默认的是使用webpack4打包，webpack4默认使用md4的加密格式，而webpack5默认的是md5，会导致文件名对应不上。athena-training-mina小程序的大型文件存储在athena-mobile-resource里面，athena-mobile-resource因为wdt工具升级到webpack5，变成md4，因此需要手动配置图片等资源的name为md5
+  - 为什么webpack5加密方式变成了md4，而不是md5？
+    - 因为node 17后采用了md4的加密算法，我们仓库采用的是node 12，还是md5的加密方式
+```js
+ERROR in ../../../node_modules/.pnpm/registry.npmjs.org/image-size/1.0.0/node_modules/image-size/dist/index.js 14:13-28
+
+Module not found: Error: Can't resolve 'path' in '/Users/fengna/project/front-end/node_modules/.pnpm/registry.npmjs.org/image-size/1.0.0/node_modules/image-size/dist'
+```
+- 打包环境分为浏览器环境和node平台环境，image-size应该是运行在node平台，而不是在浏览器平台。从 Can't resolve 'path' 可以看出来
+- 前提 import webpack from 'webpack';
+
+```js 
+import WebpackDevServer from 'webpack-dev-server'; 改为const WebpackDevServer = require('webpack-dev-server');
+```
+- 为什么要将import webpackDevServer导入方式改为require
+- 改为require后为什么有些配置项ts校验不通过？比如config.devServer
+
+```js
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '...\node_modules\@babel\runtime-corejs3\core-js\object\define-property' imported from ...\node_modules\@babel\runtime-corejs3\helpers\esm\defineProperty.js
+```
+- 解决方案：
+
+```js
+{ test: /\.m?js/, resolve: { fullySpecified: false } } // 取消强制输入扩展名Rule.resolve.fullySpecified: false
+```
+- 升级ImageMinimizerPlugin时，取消绝对路径，由ImageMinimizerPlugin插件内部导入其他插件如imagemin-mozjpeg。
+- 如
+```js
+new ImageMinimizerPlugin({minimizer: {implementation: ImageMinimizerPlugin.imageminMinify,options: {plugins: [[require.resolve('imagemin-mozjpeg')],[require.resolve('imagemin-pngquant'),{quality: [0.6, 0.8],},],],},},}),
+```
+- 去掉require.resolve
+- 源码：image-minimizer-webpack-plugin ![image-minimizer-webpack-plugin](./assets/image-minimizer-webpack-plugin.png)
+
+
+### yarn、npm、pnpm
+- 在npm3+yarn中 存在幽灵依赖，即package.json中没有引入这个包，用户却能够在业务中使用这个包。因为yarn会对依赖进行扁平化处理，如项目依赖foo，foo又依赖bar。那么在hoist机制中，bar被提升到顶层。注意，多个版本的包只能有一个被提升上来，其余版本的包会嵌套安装到各自的依赖当中（类似npm2的结构）。另一个问题NPM doppelgangers NPM分身也是由hoist机制导致的，在npm3+和yarn中，由于存在hoist机制，会导致某些依赖被提升到顶层，如果其它层也有对这个包的依赖就会导致被重复安装多次，造成性能损耗
+- pnpm https://juejin.cn/post/7053340250210795557
+
+- 硬链接和软链接的区别
+  - 硬链接：它是指将一个文件A指针复制到另一个文件B指针中，文件B就是文件A的硬链接。硬链接只能发生在同一文件系统同一分区上。
+  - 软链接：符号链接又称为软连接，如果为某个文件或文件夹A创建符号连接B，则B指向A。
+  - 硬链接仅能链接文件，而符号链接可以链接目录
+  - 硬链接在链接完成后仅和文件内容关联，和之前链接的文件没有任何关系。而符号链接始终和之前链接的文件关联，和文件内容不直接相关。
+
+- 总结：pnpm在全局通过Store来存储所有的node_modules依赖，并且在.pnpm/node_modules中存储项目的hard links，通过hard link来链接真实的文件资源即通过CAS内容寻址方式直接访问真实的文件资源，项目中则通过symbolic link链接到.pnpm/node_modules目录中，依赖放置在同一级别避免了循环的软链。
+- 拓展：CAS 内容寻址存储，是一种存储信息的方式，根据内容而不是位置进行检索信息的存储方式。
+- 不同版本的包在Store里会安装多次吗？会

@@ -12,6 +12,8 @@
 ### useCallback
 ### useRef
 
-### react内部执行方式，在说一下屏幕更新前后的差别
+
 - todo
 https://zhuanlan.zhihu.com/p/53077376?utm_source=wechat_session&utm_medium=social&utm_oi=757231104158617600
+
+https://github.com/brickspert/blog/issues/26
