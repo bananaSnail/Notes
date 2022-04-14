@@ -243,3 +243,16 @@ let isAProps = (props: any): props is IAProps =>
   typeof (props as IAProps)['js'] !== 'undefined'
 ```
 若isAProps(props)返回true则断定参数props为IAProps类型
+
+
+### narrowing：TypeScript 类型收窄就是从宽类型转换成窄类型的过程。类型收窄常用于处理联合类型变量的场景，而不是通过类型断言as去处理
+- typeof 类型保护
+- 真值收窄
+- 等值收窄
+- in操作符收窄
+- instance of收窄
+- 赋值语句收窄
+- 控制流分析、if、Switch
+- 类型谓词 pet is Fish就是类型谓词
+- function isFish(pet: Fish | Bird): pet is Fish { return 'swim' in pet; }
+- 自定义类型守卫：返回布尔值的条件表达式赋予类型守卫的能力， 只有当函数返回 true 时，形参被确定为 A 类型

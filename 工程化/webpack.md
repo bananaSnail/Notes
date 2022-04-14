@@ -190,47 +190,34 @@ url-loader会接收一个limit参数，单位字节byte
     - 小程序taro中默认的是使用webpack4打包，webpack4默认使用md4的加密格式，而webpack5默认的是md5，会导致文件名对应不上。athena-training-mina小程序的大型文件存储在athena-mobile-resource里面，athena-mobile-resource因为wdt工具升级到webpack5，变成md4，因此需要手动配置图片等资源的name为md5
   - 为什么webpack5加密方式变成了md4，而不是md5？
     - 因为node 17后采用了md4的加密算法，我们仓库采用的是node 12，还是md5的加密方式
-```js
-ERROR in ../../../node_modules/.pnpm/registry.npmjs.org/image-size/1.0.0/node_modules/image-size/dist/index.js 14:13-28
+  ```js
+  ERROR in ../../../node_modules/.pnpm/registry.npmjs.org/image-size/1.0.0/node_modules/image-size/dist/index.js 14:13-28
 
-Module not found: Error: Can't resolve 'path' in '/Users/fengna/project/front-end/node_modules/.pnpm/registry.npmjs.org/image-size/1.0.0/node_modules/image-size/dist'
-```
-- 打包环境分为浏览器环境和node平台环境，image-size应该是运行在node平台，而不是在浏览器平台。从 Can't resolve 'path' 可以看出来
-- 前提 import webpack from 'webpack';
+  Module not found: Error: Can't resolve 'path' in '/Users/fengna/project/front-end/node_modules/.pnpm/registry.npmjs.org/image-size/1.0.0/node_modules/image-size/dist'
+  ```
+  - 打包环境分为浏览器环境和node平台环境，image-size应该是运行在node平台，而不是在浏览器平台。从 Can't resolve 'path' 可以看出来
+  - 前提 import webpack from 'webpack';
 
-```js 
-import WebpackDevServer from 'webpack-dev-server'; 改为const WebpackDevServer = require('webpack-dev-server');
-```
-- 为什么要将import webpackDevServer导入方式改为require
-- 改为require后为什么有些配置项ts校验不通过？比如config.devServer
+  ```js 
+  import WebpackDevServer from 'webpack-dev-server'; 改为const WebpackDevServer = require('webpack-dev-server');
+  ```
+  - 为什么要将import webpackDevServer导入方式改为require
+  - 改为require后为什么有些配置项ts校验不通过？比如config.devServer
 
-```js
-Error [ERR_MODULE_NOT_FOUND]: Cannot find module '...\node_modules\@babel\runtime-corejs3\core-js\object\define-property' imported from ...\node_modules\@babel\runtime-corejs3\helpers\esm\defineProperty.js
-```
-- 解决方案：
+  ```js
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '...\node_modules\@babel\runtime-corejs3\core-js\object\define-property' imported from ...\node_modules\@babel\runtime-corejs3\helpers\esm\defineProperty.js
+  ```
+  - 解决方案：
 
-```js
-{ test: /\.m?js/, resolve: { fullySpecified: false } } // 取消强制输入扩展名Rule.resolve.fullySpecified: false
-```
-- 升级ImageMinimizerPlugin时，取消绝对路径，由ImageMinimizerPlugin插件内部导入其他插件如imagemin-mozjpeg。
-- 如
-```js
-new ImageMinimizerPlugin({minimizer: {implementation: ImageMinimizerPlugin.imageminMinify,options: {plugins: [[require.resolve('imagemin-mozjpeg')],[require.resolve('imagemin-pngquant'),{quality: [0.6, 0.8],},],],},},}),
-```
-- 去掉require.resolve
-- 源码：image-minimizer-webpack-plugin ![image-minimizer-webpack-plugin](./assets/image-minimizer-webpack-plugin.png)
+  ```js
+  { test: /\.m?js/, resolve: { fullySpecified: false } } // 取消强制输入扩展名Rule.resolve.fullySpecified: false
+  ```
+  - 升级ImageMinimizerPlugin时，取消绝对路径，由ImageMinimizerPlugin插件内部导入其他插件如imagemin-mozjpeg。
+  - 如
+  ```js
+  new ImageMinimizerPlugin({minimizer: {implementation: ImageMinimizerPlugin.imageminMinify,options: {plugins: [[require.resolve('imagemin-mozjpeg')],[require.resolve('imagemin-pngquant'),{quality: [0.6, 0.8],},],],},},}),
+  ```
+  - 去掉require.resolve
+  - 源码：image-minimizer-webpack-plugin ![image-minimizer-webpack-plugin](./assets/image-minimizer-webpack-plugin.png)
 
 
-### yarn、npm、pnpm
-- 在npm3+yarn中 存在幽灵依赖，即package.json中没有引入这个包，用户却能够在业务中使用这个包。因为yarn会对依赖进行扁平化处理，如项目依赖foo，foo又依赖bar。那么在hoist机制中，bar被提升到顶层。注意，多个版本的包只能有一个被提升上来，其余版本的包会嵌套安装到各自的依赖当中（类似npm2的结构）。另一个问题NPM doppelgangers NPM分身也是由hoist机制导致的，在npm3+和yarn中，由于存在hoist机制，会导致某些依赖被提升到顶层，如果其它层也有对这个包的依赖就会导致被重复安装多次，造成性能损耗
-- pnpm https://juejin.cn/post/7053340250210795557
-
-- 硬链接和软链接的区别
-  - 硬链接：它是指将一个文件A指针复制到另一个文件B指针中，文件B就是文件A的硬链接。硬链接只能发生在同一文件系统同一分区上。
-  - 软链接：符号链接又称为软连接，如果为某个文件或文件夹A创建符号连接B，则B指向A。
-  - 硬链接仅能链接文件，而符号链接可以链接目录
-  - 硬链接在链接完成后仅和文件内容关联，和之前链接的文件没有任何关系。而符号链接始终和之前链接的文件关联，和文件内容不直接相关。
-
-- 总结：pnpm在全局通过Store来存储所有的node_modules依赖，并且在.pnpm/node_modules中存储项目的hard links，通过hard link来链接真实的文件资源即通过CAS内容寻址方式直接访问真实的文件资源，项目中则通过symbolic link链接到.pnpm/node_modules目录中，依赖放置在同一级别避免了循环的软链。
-- 拓展：CAS 内容寻址存储，是一种存储信息的方式，根据内容而不是位置进行检索信息的存储方式。
-- 不同版本的包在Store里会安装多次吗？会
