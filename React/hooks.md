@@ -12,11 +12,8 @@ https://overreacted.io/zh-hans/a-complete-guide-to-useeffect/
 - 我应该把函数当做effect的依赖吗？
 - 为什么有时候会出现无限重复请求的问题？
 - 为什么有时候在effect里拿到的是旧的state或prop？
-### useLayoutEffect
-### useState
+
 ### useReducer
-### useMemo
-### useCallback
 ### useRef
 ### useEffect与useLayoutEffect
 https://zhuanlan.zhihu.com/p/53077376
@@ -49,3 +46,41 @@ https://zhuanlan.zhihu.com/p/53077376
 - 记住，传入 useMemo 的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于 useEffect 的适用范畴，而不是 useMemo。
 - 如果没有提供依赖项数组，useMemo 在每次渲染时都会计算新的值。
 
+### hooks原理
+- 手动实现useState、useEffect
+```js
+let memoizedState = []; // hooks 存放在这个数组
+let cursor = 0; // 当前 memoizedState 下标
+
+function useState(initialValue) {
+  memoizedState[cursor] = memoizedState[cursor] || initialValue;
+  const currentCursor = cursor;
+  function setState(newState) {
+    memoizedState[currentCursor] = newState;
+    render();
+  }
+  return [memoizedState[cursor++], setState]; // 返回当前 state，并把 cursor 加 1
+}
+
+function useEffect(callback, depArray) {
+  const hasNoDeps = !depArray;
+  const deps = memoizedState[cursor];
+  const hasChangedDeps = deps
+    ? !depArray.every((el, i) => el === deps[i])
+    : true;
+  if (hasNoDeps || hasChangedDeps) {
+    callback();
+    memoizedState[cursor] = depArray;
+  }
+  cursor++;
+}
+```
+- QA
+    - Q：为什么只能在函数最外层调用 Hook？为什么不要在循环、条件判断或者子函数中调用。
+    - A：memoizedState 数组是按 hook定义的顺序来放置数据的，如果 hook 顺序变化，memoizedState 并不会感知到。
+    - Q：自定义的 Hook 是如何影响使用它的函数组件的？
+    - A：共享同一个 memoizedState，共享同一个顺序。
+    - Q：“Capture Value” 特性是如何产生的？
+    - A：每一次 ReRender 的时候，都是重新去执行函数组件了，对于之前已经执行过的函数组件，并不会做任何操作。
+- 真正的 React 实现
+    - React 中是通过类似单链表的形式来代替数组的。通过 next 按顺序串联所有的 hook。
