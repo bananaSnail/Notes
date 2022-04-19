@@ -46,6 +46,12 @@ https://zhuanlan.zhihu.com/p/53077376
 - 记住，传入 useMemo 的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于 useEffect 的适用范畴，而不是 useMemo。
 - 如果没有提供依赖项数组，useMemo 在每次渲染时都会计算新的值。
 
+### React useCallback useMemo 区别
+- 这两个api，其实概念上还是很好理解的，一个是「缓存函数」， 一个是缓存「函数的返回值」。
+- 在组件内部，那些会成为其他useEffect依赖项的方法，建议用 useCallback 包裹，或者直接编写在引用它的useEffect中。
+- 如果你的function会作为props传递给子组件，请一定要使用 useCallback 包裹，对于子组件来说，如果每次render都会导致你传递的函数发生变化，可能会对它造成非常大的困扰。同时也不利于react做渲染优化。
+- 对于使用高阶函数的场景，建议一律使用 useMemo
+
 ### hooks原理
 - 手动实现useState、useEffect
 ```js

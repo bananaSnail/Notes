@@ -42,3 +42,42 @@
 - 该插入一个函数，这个函数将在浏览器空闲时期被调用。这使开发者能够在主事件循环上执行后台和低优先级工作，而不会影响延迟关键事件，如动画和输入响应。函数一般会按先进先调用的顺序执行，然而，如果回调函数指定了执行超时时间timeout，则有可能为了在超时前执行函数而打乱执行顺序。
 
 参考文献：https://zhuanlan.zhihu.com/p/37095662 https://zhuanlan.zhihu.com/p/57346388
+
+### fiber
+- Fiber 是对react reconciler（调和） 核心算法的重构。关键特性：
+    - 增量渲染（把渲染任务拆分成块，匀到多帧）
+    - 更新时能够暂停，终止，复用渲染任务
+    - 给不同类型的更新赋予优先级
+    - 并发方面新的基础能力
+- reconcile过程分为2个阶段
+    - （可中断）render/reconciliation 通过构造workInProgress tree得出change
+    - （不可中断）commit 应用这些DOM change（更新DOM树、调用组件生命周期函数以及更新ref等内部状态）
+构建workInProgress tree的过程就是diff的过程，通过requestIdleCallback来调度执行一组任务，每完成一个任务后回来看看有没有插队的（更紧急的），每完成一组任务，把时间控制权交还给主线程，直到下一次requestIdleCallback回调再继续构建workInProgress tree
+- 生命周期也被分成了两个阶段：
+```js
+// 第1阶段 render/reconciliation
+componentWillMount
+componentWillReceiveProps
+shouldComponentUpdate
+componentWillUpdate
+
+// 第2阶段 commit
+componentDidMount
+componentDidUpdate
+componentWillUnmount
+```
+    - 第1阶段的生命周期函数可能会被多次调用，默认以low优先级执行，被高优先级任务打断的话，稍后重新执行。
+- fiber tree与workInProgress tree
+    - 双缓冲技术：指的是workInProgress tree构造完毕，得到的就是新的fiber tree，然后把current指针指向workInProgress tree，由于fiber与workInProgress互相持有引用，旧fiber就作为新fiber更新的预留空间，达到复用fiber实例的目的。
+    - 每个fiber上都有个alternate属性，也指向一个fiber，创建workInProgress节点时优先取alternate，没有的话就创建一个
+- fiber 中断 恢复
+    - 中断：检查当前正在处理的工作单元，保存当前成果（firstEffect, lastEffect），修改tag标记一下，迅速收尾并再开一个requestIdleCallback，下次有机会再做
+    - 断点恢复：下次再处理到该工作单元时，看tag是被打断的任务，接着做未完成的部分或者重做
+- React 页面渲染
+    - 首次渲染时在 prerender 阶段会初始化 current 树
+    - 在非首次渲染的 render 阶段 React 依赖 current 树通过工作循环（workLoop）构建 workInProgress 树；
+    - 在 workInProgress 树进行一些更新计算，得到副作用列表（Effect List）；
+    - 在 commit 阶段将副作用列表渲染到页面后，将 current 树替换为 workInProgress 树（执行current = workInProgress）。
+    - 补充：
+        - current 树是未更新前应用程序对应的 Fiber 树，workInProgress 树是需要更新屏幕的 Fiber 树。
+        - FiberRootNode构造函数只有一个实例就是 fiberRoot 对象。而每个 Fiber 节点都是 FiberNode 构造函数的实例，它们通过return，child和sibling三个属性连接起来，形成了一个巨大链表。React 对每个节点的更新计算都是在这个链表上完成的
