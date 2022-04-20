@@ -151,5 +151,4 @@ ReactDOM.render(<Weather/>, document.getElementById('test))
     - componentDidUpdate  组件更新完毕
     - componentWillUnmount 组件将要卸载时调用
 
-### 生命周期函数 生命周期钩子函数  新生命周期
-- 
+
