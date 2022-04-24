@@ -17,8 +17,8 @@ https://overreacted.io/zh-hans/a-complete-guide-to-useeffect/
 ### useRef
 ### useEffect与useLayoutEffect
 https://zhuanlan.zhihu.com/p/53077376
-- useEffect 是异步执行的，而useLayoutEffect是同步执行的。
-- useEffect 的执行时机是浏览器完成渲染之后，而 useLayoutEffect 的执行时机是浏览器把内容真正渲染到界面之前，和 componentDidMount 等价。
+- **useEffect 是异步执行的，而useLayoutEffect是同步执行的。**
+- **useEffect 的执行时机是浏览器完成渲染之后，而 useLayoutEffect 的执行时机是浏览器把内容真正渲染到界面之前，和 componentDidMount 等价。**
 - 执行时机：
   - useEffect
     - 触发changeState
@@ -32,14 +32,14 @@ https://zhuanlan.zhihu.com/p/53077376
     - 更新视图
 
 - 总结：
-  - 优先使用 useEffect，因为它是异步执行的，不会阻塞渲染
-  - 会影响到渲染的操作尽量放到 useLayoutEffect中去，避免出现闪烁问题
+  - **优先使用 useEffect，因为它是异步执行的，不会阻塞渲染**
+  - **会影响到渲染的操作尽量放到 useLayoutEffect中去，避免出现闪烁问题**
   - useLayoutEffect和componentDidMount是等价的，会同步调用，阻塞渲染
   - 在服务端渲染的时候使用会有一个 warning，因为它可能导致首屏实际内容和服务端渲染出来的内容不一致。
 
 ### useCallback 返回一个 memoized 回调函数。
 - 把内联回调函数及依赖项数组作为参数传入 useCallback，它将返回该回调函数的 memoized 版本，该回调函数仅在某个依赖项改变时才会更新。当你把回调函数传递给经过优化的并使用引用相等性去避免非必要渲染（例如 shouldComponentUpdate）的子组件时，它将非常有用。
-- useCallback(fn, deps) 相当于 useMemo(() => fn, deps)
+- **useCallback(fn, deps) 相当于 useMemo(() => fn, deps)**
 
 ### useMemo
 - 把“创建”函数和依赖项数组作为参数传入 useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
@@ -47,7 +47,7 @@ https://zhuanlan.zhihu.com/p/53077376
 - 如果没有提供依赖项数组，useMemo 在每次渲染时都会计算新的值。
 
 ### React useCallback useMemo 区别
-- 一个是「缓存函数」， 一个是缓存「函数的返回值」。
+- **一个是「缓存函数」， 一个是缓存「函数的返回值」。**
 - 在组件内部，那些会成为其他useEffect依赖项的方法，建议用 useCallback 包裹，或者直接编写在引用它的useEffect中。
 - 如果你的function会作为props传递给子组件，请一定要使用 useCallback 包裹，对于子组件来说，如果每次render都会导致你传递的函数发生变化，可能会对它造成非常大的困扰。同时也不利于react做渲染优化。
 - 对于使用高阶函数的场景，建议一律使用 useMemo
