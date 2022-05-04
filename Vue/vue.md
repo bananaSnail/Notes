@@ -137,6 +137,10 @@
 - 生命周期的改变
   - beforeCreate -> setup、created -> setup、beforeMount -> onBeforeMount、mounted -> onMounted；
   - 增加了setup这个生命周期
+- 新增组合式 API setup
+  - 如果能够将同一个逻辑关注点相关代码收集在一起会更好，而这正是组合式 API 使我们能够做到的
+- 带 ref 的响应式变量：ref 为我们的值创建了一个响应式引用。在整个组合式 API 中会经常使用引用的概念。
+
 
 ### Vue 与 React 框架对比
 - 相同点：

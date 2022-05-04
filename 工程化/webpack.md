@@ -175,6 +175,9 @@ url-loader会接收一个limit参数，单位字节byte
   - chunk跟module的区别
       - module就是模块，和一般的js模块一样，一个模块一般是一个功能内聚，封装良好的文件，而chunk是webpack特有的，用来打包module，输出到bundle的，bundle就是module最后打包输出的文件
   - webpackChunkName
+### webpack5 和 webpack4 的区别有哪些
+
+
 
 
 - 项目细节

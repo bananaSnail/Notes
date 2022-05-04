@@ -60,6 +60,11 @@
 - babel通过调用babel.transformFileAsync api打包，打包出来是esm格式，若需要cjs格式需要通过esbuild.transform接口进行转化，将打包好的内容写入文件系统中output
 [rollup.js](https://zhuanlan.zhihu.com/p/75717476)
 
+### node cluster、child_process、worker_threads区别
+- cluster它可以通过一个父进程管理一堆子进程的方式来实现集群的功能。cluster 底层就是 child_process，master 进程做总控，启动 1 个 agent 和 n 个 worker，agent 来做任务调度，获取任务，并分配给某个空闲的 worker 来做。这样的方式仅仅实现了多进程。
+- child_process通过它可以开启多个子进程，在多个子进程之间可以共享内存空间，可以通过子进程的互相通信来实现信息的交换。
+- worker_threads 比使用 child_process 或 cluster可以获得的并行性更轻量级。 此外，worker_threads 可以有效地共享内存。开启多线程
+
 ### esbuild加速wdt编译代码
 ```js
 

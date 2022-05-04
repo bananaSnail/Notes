@@ -9,9 +9,14 @@ https://overreacted.io/zh-hans/a-complete-guide-to-useeffect/
 - 如何用useEffect模拟componentDidMount生命周期？
   - 虽然可以使用**useEffect(fn, [])，但它们并不完全相等。和componentDidMount不一样，useEffect会捕获 props和state。所以即便在回调函数里，你拿到的还是初始的props和state。如果你想得到“最新”的值，你可以使用ref。**effects的心智模型和componentDidMount以及其他生命周期是不同的，试图找到它们之间完全一致的表达反而更容易使你混淆。useEffect的心智模型更接近于实现状态同步，而不是响应生命周期事件。
 - 如何正确地在useEffect里请求数据？[]又是什么？
+    - []表示effect没有使用任何React数据流里的值，因此该effect仅被调用一次是安全的。
 - 我应该把函数当做effect的依赖吗？
+    - 一般建议把不依赖props和state的函数提到你的组件外面，并且把那些仅被effect使用的函数放到effect里面
 - 为什么有时候会出现无限重复请求的问题？
+    - 这个通常发生于你在effect里做数据请求并且没有设置effect依赖参数的情况。没有设置依赖，effect会在每次渲染后执行一次，然后在effect中更新了状态引起渲染并再次触发effect。
+    - 无限循环的发生也可能是因为你设置的依赖总是会改变。
 - 为什么有时候在effect里拿到的是旧的state或prop？
+    - 可能原因是您使用了“依赖数组”优化但没有正确指定所有依赖项
 
 ### useReducer
 ### useRef
