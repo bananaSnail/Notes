@@ -2,6 +2,9 @@
 
 `HTTP是（超文本传输协议）的缩写。它是一个应用层协议，由请求和响应构成，是一个标准的客户端服务器模型。HTTP是一个无状态的协议。`
 
+### restful api
+  - URL定位资源，用HTTP动词（GET,POST,PUT,DELETE)描述操作
+
 ### http https
 - `http以明文的形式传输的超文本协议，不适合传递些敏感性的信息；https在http的基础上加了一层ssl协议。`
 - `http的端口80，https端口443`

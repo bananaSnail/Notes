@@ -65,6 +65,8 @@
 - child_process通过它可以开启多个子进程，在多个子进程之间可以共享内存空间，可以通过子进程的互相通信来实现信息的交换。
 - worker_threads 比使用 child_process 或 cluster可以获得的并行性更轻量级。 此外，worker_threads 可以有效地共享内存。开启多线程
 
+### tsc比esbuild慢原因
+    - 因为tsc可以编译成es5，es6。但是esbuild只能编译成es6。
 ### esbuild加速wdt编译代码
 ```js
 
