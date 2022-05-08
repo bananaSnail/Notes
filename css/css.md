@@ -5,6 +5,16 @@
 - line-height 实现多行文字垂直居中 * {line-height: 150%}
 - 在某些情形下，line-height 和 height 可以互换，使用行高代替高度避免haslayout
 
+### grid和flex区别是什么？适用什么场景？
+- Flexbox 是一维布局系统，适合做局部布局，比如导航栏组件。
+- Grid 是二维布局系统，通常用于整个页面的规划。
+- 二者从应用场景来说并不冲突。虽然 Flexbox 也可以用于大的页面布局，但是没有 Grid 强大和灵活。二者结合使用更加轻松。
+- Grid：grid-gap指定行间距/列间距；grid-template-areas：网格布局允许指定"区域"（area），一个区域由单个或多个单元格组成。grid-template-areas属性用于定义区域。
+```css
+grid-template-areas: 'a b c'
+                     'd e f'
+                     'g h i';
+```
 
 ### 浮动
 

@@ -223,3 +223,44 @@ var counter = (function(){
 - mouseover：当鼠标移入某元素时触发，移入和移出其子元素时也会触发。
 - mouseout：当鼠标移出某元素时触发，移入和移出其子元素时也会触发。
 - mousemove：鼠标在某元素上移动时触发，即使在其子元素上也会触发。
+
+### let面试题
+```js
+var total = 0;
+var a = 3;
+var result = []
+
+function foo(a) {
+  var i = 0;
+  for(;i<3;i++) {
+    result[i] = function() {
+      total += i*a;
+      console.log(total)
+    }
+  }
+}
+
+foo(1);
+result[0]();
+result[1]();
+result[2]();
+
+3
+6
+9
+
+// 将var i 改为 let i
+function foo(a) {
+  for(let i = 0;i<3;i++) {
+    result[i] = function() {
+      total += i*a;
+      console.log(total)
+    }
+  }
+}
+
+0
+1
+3
+// let 声明的变量具有块级作用域，每轮循环i都是一个新值，因此数组中存储了不同的数字
+```
