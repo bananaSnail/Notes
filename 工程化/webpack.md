@@ -76,7 +76,20 @@ url-loader会接收一个limit参数，单位字节byte
 - HMR的核心就是`客户端从服务端拉取更新后的文件`，准确的说是 chunk diff (chunk 需要更新的部分)，实际上 `WDS(Webpack-dev-server) 与浏览器之间维护了一个 Websocket，当本地资源发生变化时，WDS 会向浏览器推送更新，并带上构建时的 hash，让客户端与上一次资源进行对比。客户端对比出差异后会向 WDS 发起 Ajax 请求来获取更改内容(文件列表、hash)，这样客户端就可以再借助这些信息继续向 WDS 发起 jsonp 请求获取该chunk的增量更新。`
 - 后续的部分(拿到增量更新之后如何处理？哪些状态该保留？哪些又需要更新？)由 HotModulePlugin 来完成，提供了相关 API 以供开发者针对自身场景进行处理，像react-hot-loader 和 vue-loader 都是借助这些 API 实现 HMR。
 
+### loader和plugin的区别
+- loader 是文件加载器，能够加载资源文件，并对这些文件进行一些处理，诸如编译、压缩等，最终一起打包到指定的文件中。loader 运行在打包文件之前
+  - 其本质为函数，函数中的 this 作为上下文会被 webpack 填充，因此我们不能将 loader设为一个箭头函数
+  - 函数接受一个参数，为 webpack 传递给 loader 的文件源内容
+  - 函数中 this 是由 webpack 提供的对象，能够获取当前 loader 所需要的各种信息
+  - 函数中有异步操作或同步操作，异步操作通过 this.callback 返回，返回值要求为 string 或者 Buffer
+- plugin 赋予了 webpack 各种灵活的功能，例如打包优化、资源管理、环境变量注入等，目的是解决 loader 无法实现的其他事。plugins 在整个编译周期都起作用
+  - 插件必须是一个函数或者是一个包含 apply 方法的对象，这样才能访问compiler实例
+  - 传给每个插件的 compiler 和 compilation 对象都是同一个引用，因此不建议修改
+  - 异步的事件需要在插件处理完任务时调用回调函数通知 Webpack 进入下一个流程，不然会卡住
 
+### webpack编译会创建两个核心对象：
+- compiler：包含了 webpack 环境的所有的配置信息，包括 options，loader 和 plugin，和 webpack 整个生命周期相关的钩子
+- compilation：作为 plugin 内置事件回调函数的参数，包含了当前的模块资源、编译生成资源、变化的文件以及被跟踪依赖的状态信息。当检测到一个文件变化，一次新的 Compilation 将被创建
 
 ### webpack性能优化
 - resolve字段的配置
@@ -95,6 +108,19 @@ url-loader会接收一个limit参数，单位字节byte
   - 入口起点：使用 entry 配置手动地分离代码。
   - 防止重复：使用 Entry dependencies 或者 SplitChunksPlugin 去重和分离 chunk。
   - 动态导入：通过模块的内联函数调用来分离代码
+### webpack拆包分包对性能有很大作用
+- 怎么去做拆包分包提取公共代码？
+  - optimization.splitChunks
+- 怎么提公共模块更高效？
+  - 可以设置cacheGroup
+  - splitChunks.minSize：生成 chunk 的最小体积
+  - splitChunks.minChunks：拆分前必须共享模块的最小 chunks 数
+- 怎么判断一个模块是否需要被抽成公共模块？
+  - 在打包的时候，应该把不同入口之间，共同引用的模块，抽离出来，放到一个公共模块中。这样不管这个模块被多少个入口引用，都只会在最终打包结果中出现一次。
+- 拆分原则：
+  - 业务代码和第三方库分离打包，实现代码分割；
+  - 业务代码中的公共业务模块提取打包到一个模块；
+  - 第三方库最好也不要全部打包到一个文件中，因为第三方库加起来通常会很大，我会把一些特别大的库分别独立打包，剩下的加起来如果还很大，就把它按照一定大小切割成若干模块。
 
 ### [Tree Shaking](https://webpack.docschina.org/guides/tree-shaking/) 
 - 概念：Tree shaking 是一种通过清除多余代码方式来优化项目打包体积的技术
@@ -176,9 +202,12 @@ url-loader会接收一个limit参数，单位字节byte
       - module就是模块，和一般的js模块一样，一个模块一般是一个功能内聚，封装良好的文件，而chunk是webpack特有的，用来打包module，输出到bundle的，bundle就是module最后打包输出的文件
   - webpackChunkName
 ### webpack5 和 webpack4 的区别有哪些
-
-
-
+- 压缩代码：内置了 terser-webpack-plugin 插件，我们不用再下载安装
+- 内置了Tree Shaking，不需要在配置插件
+- webpack5 内部内置了 cache 缓存机制
+- 打包：webpack5打包:后续没有使用到的函数，不会将代码打包进去
+- 输出代码：webpack4只能输出es5代码；webpack5新增属性output.ecmaVersion，可以生成ES5和ES6的代码
+- webpack4默认使用md4的加密格式，而webpack5默认的是md5，会导致文件名对应不上
 
 - 项目细节
   - link-to-chunk.ts 文件用import动态导入，配合/* webpackChunkName: "survey" */，生成一个单独的有意义的文件名，用来分析包的大小及优化；对比require形式，require是将所有的都打包到一个文件里

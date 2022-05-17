@@ -3,6 +3,23 @@
 - 更改变量的值不会改变底层原始数据或对象，只是改变了数据或指向了另一个对象；
 - 改变变量引用对象的一个属性会改变底层对象
 
+### for in，for of,foreach
+- for...in：是为遍历对象属性而构建的，不建议与数组一起使用
+  -  for...in 循环是以字符串作为键名
+  - `for...in 会遍历对象的整个原型链，性能非常差不推荐使用，而for...of只遍历当前对象不会遍历他的原型链`
+  - 某些情况下，for...in 循环会以任意顺序遍历键名
+  - for...in 它可以与 break、continue 和 return 配合使用
+  ```js
+  for..in循环只能遍历可枚举的属性,即在遍历对象时可用的属性,如构造函数属性就不会显示,可以使用propertyIsEnumerable()方法检查哪些属性是可枚举属性
+  可以使用hasOwnProperty验证对象属性是不是来自原型链
+  ```
+- for...of 遍历数组
+  - `for...of只能用在可迭代对象上，获取的是迭代器返回的value值`，`for...in可以获取所有对象的键名`
+  - 不同于 forEach 方法，它可以与 break、continue 和 return 配合使用
+- forEach 遍历数组
+  - 缺点：无法中途跳出 forEach 循环，break 命令或 return 命令都不能生效
+- 迭代器：一个具有next()方法的对象，调用next()方法会返回value和done属性。自带迭代器的数据结构Array、Map、Set、String、函数的arguments对象、TypedArray(类型化数组对象)
+
 ### 数据的存储
 - `基本数据类型变量值存储在栈中`
 - `对象类型是存放在堆空间的，在栈空间中只是保留了对象的引用地址，当 JavaScript 需要访问该数据的时候，是通过栈中的引用地址来访问的`，相当于多了一道转手流程
@@ -264,3 +281,25 @@ function foo(a) {
 3
 // let 声明的变量具有块级作用域，每轮循环i都是一个新值，因此数组中存储了不同的数字
 ```
+### Promise all 和allSettled区别
+- Promise.allSettled永远不会被reject
+```js
+const promises = [
+  delay(100).then(() => 1),
+  delay(200).then(() => 2),
+  Promise.reject(3)
+  ]
+
+Promise.all(promises).then(values=>console.log(values))
+// 最终输出： Uncaught (in promise) 3
+
+Promise.allSettled(promises).then(values=>console.log(values))
+// 最终输出： 
+//    [
+//      {status: "fulfilled", value: 1},
+//      {status: "fulfilled", value: 2},
+//      {status: "rejected", value: 3},
+//    ]
+```
+### js proposal-logical-assignment
+- ??=

@@ -151,6 +151,13 @@ box-sizing: content-box; //标准模型
   - 先需要设置根节点html的字体大小，因为浏览器默认字体大小16px*62.5%=10px。这样1rem便是10px，方便了计算。
 
 ### H5 移动端 （待补充）
+- h5适配：淘宝lib-flexible
+  - flexible实际上就是能过JS来动态改写meta标签
+  - 动态改写<meta>标签
+  - 给<html>元素添加data-dpr属性，并且动态改写data-dpr的值
+  - 给<html>元素添加font-size属性，并且动态改写font-size的值
+- vw来做移动端的适配
+- 使用 postcss-px-to-viewport，自动将px转成视口单位vw
 #### CSS单位px,rem,em,vw,vh的区别
 - `px：像素缩写，相对长度单位，相对于显示屏分辨率而言`
 - `em：相对长度单位，相对于当前对象内文本字体尺寸，参考父元素的font-size；若父元素没有设置字体大小则相对于浏览器的默认字体尺寸`

@@ -141,6 +141,10 @@
   - 如果能够将同一个逻辑关注点相关代码收集在一起会更好，而这正是组合式 API 使我们能够做到的
 - 带 ref 的响应式变量：ref 为我们的值创建了一个响应式引用。在整个组合式 API 中会经常使用引用的概念。
 
+### defineProperty和Proxy区别
+- 对于Object.defineProperty来说，处理对象和数组一样，**只是在初始化时去改写get和set达到监测数组或对象的变化。对于新增的属性，需要手动再初始化。**
+- 对于数组来说，只不过特别了点，某些方法例如push、unshift等也会新增索引。对于新增的索引亦可以添加observe从而达到监听的效果。而pop和shift则会删除更新索引，也会出发Object.defineProperty的get和set。对于重新赋值length的数组，不会新增索引，因为不清楚新增的索引数量。
+- Proxy可以直接劫持整个对象并返回一个新对象。Proxy返回的是一个新对象，故我们可以只操作新对象达到目的，而不是像Object.defineProperty一样笨拙的遍历对象属性并修改。Proxy劣势是兼容性问题(IE不支持)。Proxy可以监听到十几种方法
 
 ### Vue 与 React 框架对比
 - 相同点：

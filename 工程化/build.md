@@ -35,12 +35,24 @@
         - vite不支持commonjs语法，只支持esm的形式
         - 因此vite-plugin-commonjs里转换require为import时需要区分是否为业务代码
         - 业务内图片的导入用的是require形式，所以必须要将require转换为import格式
+### [vite原理](https://jishuin.proginn.com/p/763bfbd29d7f)
+- vite 利用 ES module，把 “构建 vue 应用” 这个本来需要通过 webpack 打包后才能执行的代码直接放在浏览器里执行，这么做是为了：
+    - 去掉打包步骤
+    - 实现按需加载
+- connect允许接入一些插件作为中间件，vite 通过对请求路径的劫持获取资源的内容返回给浏览器，不过 vite 对于模块导入做了特殊处理。
+- 为什么需要 @modules？
+    - 浏览器中的 esm 是不可能获取到导入的模块内容，浏览器中 ESM 无法直接访问项目下的 node_modules，所以 vite 对所有 import 都做了处理，用带有 @modules 的前缀重写它们
+    - 加入了 optimize 命令，这个命令专门为解决模块引用的坑而开发，例如我们要在 vite 中使用 lodash，只需要在 vite.config.js （vite 配置文件）中，配置 optimizeDeps 对象，在 include 数组中添加 lodash
+    - 这样 vite 在执行 runOptimize 的时候中会使用 roolup 对 lodash 包重新编译，将编译成符合 esm 模块规范的新的包放入 node_modules 下的 .vite_opt_cache 中，然后配合 resolver 对 lodash 的导入进行处理：使用编译后的包内容代替原来 lodash 的包的内容，这样就解决了 vite 中不能使用 cjs 包的问题，这部分代码在 depOptimizer.ts 里。
+- css
+    - 安装对应的 css 预处理器即可。在 cssPlugin 中，通过正则：/(.+).(less|sass|scss|styl|stylus)$/ 判断路径是否需要 css 预编译，如果命中正则，就借助 cssUtils 里的方法借助 postcss 对要导入的 css 文件编译。
     
 ### esbuild加速脚手架编译
 - 速度对比：
     - tsc 6s 
     - esbuild build 2s 
     - esbuild transform 1s 
+- esbuild比tsc快的原因是esbuild只支持转化成es6
 - 拓展
     - babel/core.js 集成了主流一些Map方法的polyfill兼容低版本浏览器的代码
     - ??= [proposal-logical-assignment](https://github.com/tc39/proposal-logical-assignment)
@@ -67,7 +79,11 @@
 
 ### tsc比esbuild慢原因
     - 因为tsc可以编译成es5，es6。但是esbuild只能编译成es6。
+### node  一个文件就是一个单例模块，因此不需要额外写代码去维护单例模式
 ### esbuild加速wdt编译代码
 ```js
 
 ```
+### [babel的polyfill和runtime的区别](https://segmentfault.com/q/1010000005596587?from=singlemessage&isappinstalled=1)
+- 一些 ES6 的新语法，如 Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise 等全局对象，以及一些定义在全局对象上的方法（比如 Object.assign、Array.from）都需要用 babel-polyfill 进行转译，为当前 [应用开发] 环境铺好路，而不是库或是工具。
+- **Runtime transform 更适用于 库/脚本 开发，它提供编译模块复用工具函数，将不同文件中用到的辅助函数如 _extend 统一打包在一块，避免重复出现导致的体积变大。另外一个目的是，在 库/脚本工具开发中不需要直接引用 polyfill，因为会造成实际应用开发中，一些全局变量名污染，比如 Promise、Map 等。Runtime 会自动应用 Polyfill，而不需要再单独引用。**
