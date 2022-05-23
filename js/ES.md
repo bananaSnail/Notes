@@ -10,6 +10,53 @@
 - ES6 Module
 - `类class`
 - generate
+- Proxy
+- Reflect
+
+### [Proxy](https://zh.javascript.info/proxy)
+- Reflect 是一个内建对象，可简化 Proxy 的创建。[[Get]] 和 [[Set]] 等，都只是规范性的，不能直接调用。[proxy](https://zh.javascript.info/proxy#proxy-de-ju-xian-xing)
+- Reflect 对象使调用这些内部方法成为了可能。它的方法是内部方法的最小包装。
+```js
+let numbers = [];
+
+numbers = new Proxy(numbers, { // (*)
+  set(target, prop, val) { // 拦截写入属性操作
+    if (typeof val == 'number') {
+      target[prop] = val;
+      return true;
+    } else {
+      return false;
+    }
+  }
+});
+
+numbers.push(1); // 添加成功
+numbers.push(2); // 添加成功
+alert("Length is: " + numbers.length); // 2
+
+numbers.push("test"); // TypeError（proxy 的 'set' 返回 false）
+
+```
+- 跟defineProperty区别，为什么Proxy会取代Object.defineProperty：
+  - Object.defineProperty只能劫持对象的属性，不能监听数组。也不能对 es6 新产生的 Map,Set 这些数据结构做出监听。也不能监听新增和删除操作等等。
+  - Proxy可以直接监听整个对象而非属性，可以监听数组的变化，具有多达13中拦截方法。
+
+### Reflect
+- Reflect 是一个内置的对象，它提供拦截 JavaScript 操作的方法。这些方法与proxy handlers 的方法相同。Reflect不是一个函数对象，因此它是不可构造的。
+- Reflect 上的所有函数都对应一个 Proxy 的陷阱。这些函数接受的参数，返回值的类型，都和 Proxy 上的别无二致，可以说 Reflect 就是 Proxy 拦截的那些操作的原本实现。
+- 那 Reflect 存在的意义是什么呢？
+  - 上文提到过，**Proxy 上某一些陷阱对处理函数的返回值有要求。如果想让代理对象能正常工作，那就不得不按照 Proxy 的要求去写处理函数。或许会有人觉得只要用 Object 提供的方法不就好了，然而不能这么想当然，因为某些陷阱要求的返回值和 Object 提供的方法拿到的返回值是不同的，而且有些陷阱还会有逻辑上的要求，和 Object 提供的方法的细节也有所出入。**举个简单的例子：**Proxy 的 defineProperty 陷阱要求的返回值是布尔类型，成功就是 true，失败就是 false。而 Object.defineProperty 在成功的时候会返回定义的对象，失败则会报错。**如此应该能够看出为陷阱编写实现的难点，如果要求简单那自然是轻松，但是要求一旦复杂起来那真是想想都头大，大多数时候我们其实只想过滤掉一部分操作而已。**Reflect 就是专门为了解决这个问题而提供的，因为 Reflect 里的函数都和 Proxy 的陷阱配套，返回值的类型也和 Proxy 要求的相同，所以如果我们要实现原本的功能，直接调用 Reflect 里对应的函数就好了。**
+
+
+### 标签模板
+- 标签模板紧跟在一个函数后面，该函数被调用来处理这个模板字符串，称为标签模板
+```js
+let a = 5;
+let b = 10;
+tag`Hello ${ a + b } world ${ a * b }`;
+// 等同于
+tag(['Hello ', ' world ', ''], 15, 50);
+```
 
 ### es2020新特性
 - 可选链操作符(?. ) (user?.name) 不为null 或者 undefined 才能继续下去 

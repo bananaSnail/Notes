@@ -3,6 +3,17 @@
 - 更改变量的值不会改变底层原始数据或对象，只是改变了数据或指向了另一个对象；
 - 改变变量引用对象的一个属性会改变底层对象
 
+### Object.defineProperty的用法
+```js
+var user = { age: 10 };
+let temp = user.age;
+
+Object.defineProperty(user,'age',{ get() {temp++; return temp}});
+
+console.log(user.age); // 11
+console.log(user.age); // 12
+```
+- 注意：get方法里面不能获取被劫持的属性，否则会无限循环调用get方法
 ### for in，for of,foreach
 - for...in：是为遍历对象属性而构建的，不建议与数组一起使用
   -  for...in 循环是以字符串作为键名
