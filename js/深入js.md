@@ -3,6 +3,28 @@
 - 更改变量的值不会改变底层原始数据或对象，只是改变了数据或指向了另一个对象；
 - 改变变量引用对象的一个属性会改变底层对象
 
+### 判断监听器
+- element.addEventListener(type, listener[, useCapture]);　　//IE6~8不支持
+- element.attachEvent('on' + type, listener) //支持IE6~10，IE11不支持
+- element['on' + type] = function(){} //支持所有浏览器
+```js
+let eventHandler = (element, type, handler) => {
+  if (window.addEventListener) {
+    eventHandler = (element, type, handler) => {
+      element.addEventListener(type, handler)
+    }
+  }
+  if (window.attachEvent) {
+    eventHandler = (element, type, handler) => {
+      element.attachEvent(`on${type}`, handler)
+    }
+  } else {
+    eventHandler = (element, type, handler) => {
+      element[`on${type}`] = handler
+    }
+  }
+}
+```
 ### Object.defineProperty的用法
 ```js
 var user = { age: 10 };
@@ -242,9 +264,14 @@ var counter = (function(){
 
 ### instanceof 和 typeof 的实现原理
 - typeof: 判断基本数据类型，（numbel string boolean undefined object symbol function）无法判断null
-- Object.prototype.toString 上述几种都可以判断
+- Object.prototype.toString 上述几种都可以判断，可以通过 toString() 来获取每个对象的类型
 - 我们使用 typeof 来判断基本数据类型是 ok 的，不过需要注意当用 typeof 来判断 null 类型时的问题，如果想要判断一个对象的具体类型可以考虑用 instanceof，但是 `instanceof 也可能判断不准确，比如一个数组，他可以被 instanceof 判断为 Object。`所以我们要想比较准确的判断对象实例的类型时，可以采取 `Object.prototype.toString.call `方法。
+```js
+console.log(typeof null); // "object"
+console.log(null instanceof Object); // false
+console.log(Object.prototype.toString.call(null)); // "[object Null]"
 
+```
 ### mouseenter和mouseover区别
 - mouseenter：当鼠标移入某元素时触发。
 - mouseleave：当鼠标移出某元素时触发。
@@ -291,6 +318,18 @@ function foo(a) {
 1
 3
 // let 声明的变量具有块级作用域，每轮循环i都是一个新值，因此数组中存储了不同的数字
+```
+```js
+let a = 10;
+
+function test() {
+  console.log(a);
+  let a = 20;
+  a++
+}
+
+test()
+// Uncaught ReferenceError
 ```
 ### Promise all 和allSettled区别
 - Promise.allSettled永远不会被reject
