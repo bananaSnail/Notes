@@ -277,7 +277,7 @@ var counter = (function(){
 - 模块模式方法不仅相当的厉害而且简单。非常少的代码，你可以有效的利用与方法和属性相关的命名，在一个对象里，`组织全部的模块代码即最小化了全局变量的污染也创造了使用变量。`
 
 ### instanceof 和 typeof 的实现原理
-- typeof: 判断基本数据类型，（numbel string boolean undefined object symbol function）无法判断null
+- typeof: 判断基本数据类型，（numbel string boolean undefined object symbols function）无法判断null
 - Object.prototype.toString 上述几种都可以判断，可以通过 toString() 来获取每个对象的类型
 - 我们使用 typeof 来判断基本数据类型是 ok 的，不过需要注意当用 typeof 来判断 null 类型时的问题，如果想要判断一个对象的具体类型可以考虑用 instanceof，但是 `instanceof 也可能判断不准确，比如一个数组，他可以被 instanceof 判断为 Object。`所以我们要想比较准确的判断对象实例的类型时，可以采取 `Object.prototype.toString.call `方法。
 ```js
