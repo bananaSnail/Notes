@@ -1,6 +1,16 @@
 ### 脚手架开启多服务器多项目多环境同时编译部署
-- 
 
+### postcss跟css区别
+- postcss 一个用JavaScript工具和插件转换css代码的工具，类似于webpack工具，支持很多插件来达到便捷编译的结果，组成一个CSS编译/lint/autoprefixer的生态圈
+- postcss 提供一种方式用javaScript的方式来处理css，它负责把css代码解析成抽象语法树结构，再交给插件处理，处理完后把处理结果序列化成css。CSS编译器能够做到的事情，postcss也可以做到，而且能够做得更好
+- postcss特点
+    - 根据你需要的特性进行模块化，而不是像 less 或者 scss 一样的全家桶。
+    - 多样化的功能插件，创建了一个生态的插件系统
+    - 拥有极高的处理性能（3倍以上的处理速度）
+    - 可以自己编写postcss插件
+    - 既可以写正常的CSS，也可以结合 LESS 或者 SASS 一起编写
+    - 可以与许多流行工具无缝部署，例如 webpack、gulp、codepen 等
+    - 对 Source Map 支持更好
 ### 脚手架本地开发启用vite，加速编译
 - 目标
     - 提高编译速度

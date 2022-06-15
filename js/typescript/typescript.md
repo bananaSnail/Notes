@@ -4,6 +4,71 @@
 - 不引入额外开销
 - 不改变运行时行为
 
+### const 和 readonly的区别
+- const 用于变量， readonly 用于属性
+- const 在运行时检查， readonly 在编译时检查
+- const 声明的变量不得改变值，这意味着，const 一旦声明变量，就必须立即初始化，不能留到以后赋值; readonly 修饰的属性能确保自身不能修改属性，但是当你把这个属性交给其它并没有这种保证的使用者(允许出于类型兼容性的原因)，他们能改变
+- const 保证的不是变量的值不得改动，而是变量指向的那个内存地址不得改动，例如使用 const 变量保存的数组，可以使用 push ， pop 等方法。但是如果使用 ReadonlyArray 声明的数组不能使用 push ， pop 等方法。
+
+### 枚举和常量枚举的区别
+- 枚举会被编译时会编译成一个对象，可以被当作对象使用
+- const 枚举会在 typescript 编译期间被删除，const 枚举成员在使用的地方会被内联进来，避免额外的性能开销
+```js
+// 枚举 
+enum Color { 
+  Red, 
+  Green, 
+  Blue 
+} 
+ 
+var sisterAn = Color.Red 
+// 会被编译成 JavaScript 中的 var sisterAn = Color.Red 
+// 即在运行执行时，它将会查找变量 Color 和 Color.Red 
+
+// 常量枚举 
+const enum Color { 
+  Red, 
+  Green, 
+  Blue 
+} 
+ 
+var sisterAn = Color.Red 
+// 会被编译成 JavaScript 中的 var sisterAn = 0 
+// 在运行时已经没有 Color 变量 
+
+```
+### 如何获取到函数返回值类型
+- Exclude<T, U> -- 从T中剔除可以赋值给U的类型。
+- Extract<T, U> -- 提取T中可以赋值给U的类型。
+- NonNullable<T> -- 从T中剔除null和undefined。
+- ReturnType<T> -- 获取函数返回值类型。
+- InstanceType<T> -- 获取构造函数类型的实例类型。
+
+### 打包后enum是存在的，如何使用enum中某个值，并使之打包后不存在这个枚举类型值
+
+### any 和 unknown、 never区别
+- any 表示任意类型，不做任何类型约束，编译时会跳过对其类型检查
+- void 表示无任何类型，一般用定义函数返回值。变量也可以申明为 void 类型，只不过只能给这个变量分配 undefined, null（非严格模式下） 和 void 类型的值
+- unknown 表示未知类型，一般用于从服务器接口返回的数据或者JSON.parse() 返回结果等；相当于any的安全版本。unknown能被赋值为任何类型，但不能赋值给除了any 和 unknown之外的类型，并且不允许执行unknown类型变量的方法
+```js
+let a: unknown = 123;
+a = '123'; // ok
+a = true; // ok
+a.toString(); // Error
+
+let b: string = a; // Error 
+```
+- never 表示永不存在的值，从程序运行角度考虑一些函数执行时抛出了异常，这个函数就变成永远不会有值了；**never是所有类型的子类型，但没有任何类型是never的子类型，除了never自身外。**
+```js
+let a: never
+let b: never
+a = b; // ok
+
+let c: any = 'str';
+a = c; // Error
+
+```
+
 
 ### 介绍下泛型，一般用于什么场景
 - 泛型指定义函数、接口或类的时候，不预先指定具体的类型，而在使用的时候再指定类型的一种特性
@@ -21,6 +86,8 @@
 
 
 ### namespace/module
+- 一个文件就是一个module，即一个模块
+- namespace是命名空间，在全局空间中具有唯一性
 
 
 # TypeScript
@@ -256,3 +323,4 @@ let isAProps = (props: any): props is IAProps =>
 - 类型谓词 pet is Fish就是类型谓词
 - function isFish(pet: Fish | Bird): pet is Fish { return 'swim' in pet; }
 - 自定义类型守卫：返回布尔值的条件表达式赋予类型守卫的能力， 只有当函数返回 true 时，形参被确定为 A 类型
+
