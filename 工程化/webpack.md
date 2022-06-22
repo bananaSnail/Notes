@@ -5,6 +5,125 @@
 ### entry：入口文件指是webpack应用哪个模块作为依赖图的开始，默认值是./src/index.js
 ### output：告诉webpack在哪里输出它所创建的bundle，以及如何命名这些文件。默认值是 ./dist/main.js
 
+### 什么是ast
+- Abstract Syntax Tree抽象语法树（通常被简写成AST）实际上只是一个解析树(parse tree)的一个精简版本。在编译器设计的语境中，"AST" 和 "语法树"(syntax tree)是可以互换的。
+- 什么是解析树呢？我们知道一棵解析树是包含代码所有语法信息的树型结构，它是代码的直接翻译。所以解析树，也被成为具象语法树（Concret Syntax Tree, 简称CST）;而抽象语法树，忽略了一些解析树包含的一些语法信息，剥离掉一些不重要的细节，所以它看起并不像解析树那么事无巨细，这也是AST名字中抽象一词的由来。
+
+### [webpack：loader跟plugin区别，如何识别import require 语句？如何做匹配？](https://zhuanlan.zhihu.com/p/102385477)
+```js
+5 + (1 x 12)  // 例子
+
+// 词法分析得到token序列
+<CONST, 5>
+<OPT, +>
+<SLP, ->
+<CONST, 1>
+<OPT, *>
+<CONST, 12>
+<RLP, ->
+// var result  =  5 + (1 * 12)
+
+// AST
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+          {
+              "type": "VariableDeclarator",
+              "id": {
+                  "type": "Identifier",
+                  "name": "result"
+              },
+              "init": {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                      "type": "Literal",
+                      "value": 5,
+                      "raw": "5"
+                  },
+                  "right": {
+                      "type": "BinaryExpression",
+                      "operator": "*",
+                                           "left": {
+                          "type": "Literal",
+                          "value": 1,
+                          "raw": "1"
+                      },
+                      "right": {
+                          "type": "Literal",
+                          "value": 12,
+                          "raw": "12"
+                      }
+                  }
+              }
+          }
+      ],
+      "kind": "var"
+    }
+  ],
+
+  // 词法分析阶段生成的token
+[
+  {
+    "type": "Keyword",
+    "value": "var"
+  },
+  {
+    "type": "Identifier",
+    "value": "result"
+  },
+  {
+    "type": "Punctuator",
+    "value": "="
+  },
+  {
+    "type": "Numeric",
+    "value": "5"
+  },
+  {
+    "type": "Punctuator",
+    "value": "+"
+  },
+  {
+    "type": "Punctuator",
+    "value": "("
+  },
+  {
+    "type": "Numeric",
+    "value": "1"
+  }, {
+    "type": "Punctuator",
+    "value": "*"
+  },
+  {
+    "type": "Numeric",
+    "value": "12"
+  },
+  {
+    "type": "Punctuator",
+    "value": ")"
+  },
+  {
+    "type": "Punctuator",
+    "value": ";"
+  }
+]
+```
+- 词法分析：结合编译原理学过的，在扫描文件内容时，进行词法分析得到分解后的token序列
+- 语法分析：分词阶段完成以后，token序列会经过我们的解析器，由解析器识别出代码中的各类短语，会根据语言的文法规则(rules of grammar)输出解析树，这棵树是对代码的树形描述。
+- AST：将上面步骤的解析树中的某些文法规则EXP精简掉得到AST树
+  - AST不含有语法细节，比如冒号、括号、分号
+  - AST会压缩单继承节点
+  - 操作符会变成内部节点，不再会以叶子节点出现在树的末端。
+
+
+
+
+
+
 ### loader
 - 作用：处理任意类型文件，并且将它们转换成一个让webpack可以处理的有效模块。
 - 加载单文件组件格式撰写的Vue组件 --> vue-loader 

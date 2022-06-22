@@ -94,4 +94,4 @@ function useEffect(callback, depArray) {
     - Q：“Capture Value” 特性是如何产生的？
     - A：每一次 ReRender 的时候，都是重新去执行函数组件了，对于之前已经执行过的函数组件，并不会做任何操作。
 - 真正的 React 实现
-    - React 中是通过类似单链表的形式来代替数组的。通过 next 按顺序串联所有的 hook。
+    - React 中是通过类似**单链表的形式来代替数组的。通过 next 按顺序串联所有的 hook。**
