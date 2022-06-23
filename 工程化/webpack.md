@@ -5,6 +5,8 @@
 ### entry：入口文件指是webpack应用哪个模块作为依赖图的开始，默认值是./src/index.js
 ### output：告诉webpack在哪里输出它所创建的bundle，以及如何命名这些文件。默认值是 ./dist/main.js
 
+### webpack 图片处理和优化
+
 ### 什么是ast
 - Abstract Syntax Tree抽象语法树（通常被简写成AST）实际上只是一个解析树(parse tree)的一个精简版本。在编译器设计的语境中，"AST" 和 "语法树"(syntax tree)是可以互换的。
 - 什么是解析树呢？我们知道一棵解析树是包含代码所有语法信息的树型结构，它是代码的直接翻译。所以解析树，也被成为具象语法树（Concret Syntax Tree, 简称CST）;而抽象语法树，忽略了一些解析树包含的一些语法信息，剥离掉一些不重要的细节，所以它看起并不像解析树那么事无巨细，这也是AST名字中抽象一词的由来。
@@ -119,11 +121,6 @@
   - AST会压缩单继承节点
   - 操作符会变成内部节点，不再会以叶子节点出现在树的末端。
 
-
-
-
-
-
 ### loader
 - 作用：处理任意类型文件，并且将它们转换成一个让webpack可以处理的有效模块。
 - 加载单文件组件格式撰写的Vue组件 --> vue-loader 
@@ -159,7 +156,7 @@ url-loader会接收一个limit参数，单位字节byte
 */
 ```
 - `file-loader：把文件输出到一个文件夹中，在代码中通过相对 URL 去引用输出的文件 (处理图片和字体)`
-- `url-loader：与 file-loader 类似，区别是用户可以设置一个阈值，大于阈值会交给 file-loader 处理，小于阈值时返回文件 base64 形式编码 (处理图片和字体)`
+- `url-loader：与 file-loader 类似，区别是用户可以设置一个阈值，大于阈值会交给 file-loader 处理，小于阈值时返回文件 base64 形式编码 (处理图片和字体)，将小体积的图片 Base64 引入项目可以减少 http 请求，也是一个前端常用的优化方式。`
 - `babel-loader：把 ES6 转换成 ES5`
 - `ts-loader: 将 TypeScript 转换成 JavaScript`
 -` sass-loader：将SCSS/SASS代码转换成CSS`
